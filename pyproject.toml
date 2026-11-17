@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "iptime-cli"
-version = "0.1.1"
-description = "Unofficial command line and Python library for ipTIME routers with the new admin UI (firmware 16.x): clients, DHCP reservations, port forwarding, Wi-Fi, WAN, remote admin. Standard library only."
+version = "0.1.2"
+description = "An unofficial CLI and Python library for reading and changing ipTIME routers that run the new firmware 16.x admin UI."
 readme = "README.md"
 requires-python = ">=3.9"
 license = "MIT"

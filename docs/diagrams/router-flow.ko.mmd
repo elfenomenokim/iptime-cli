@@ -1,0 +1,5 @@
+flowchart LR
+    You[사용자] --> CLI[iptime 명령]
+    CLI -->|조회 또는 변경| Router[공유기 관리 API]
+    Router --> Result[읽기 쉬운 결과 또는 JSON]
+    CLI -. --dry-run .-> Preview[요청 내용만 미리 보기]

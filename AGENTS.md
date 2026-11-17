@@ -2,6 +2,17 @@
 
 Instructions for an AI agent asked to look at or change an ipTIME router (new admin UI, firmware 16.x) from a terminal.
 
+## Repository work
+
+- CLI package: `src/iptime_cli/`; user and protocol notes: `skill/iptime-cli/SKILL.md`.
+- Run from this directory with `python -m iptime_cli --help` or `python -m iptime_cli <command>`.
+- Try read commands against the bundled fake router: `python -m iptime_cli.fake_router --port 8080`, then set `IPTIME_HOST=127.0.0.1:8080` and `IPTIME_PASSWORD=secret` in another shell.
+- Install a local checkout with `python -m pip install -e .`; the executable is `iptime`.
+- No test or lint command is configured in this repository. Do not claim router-model coverage from the fake server.
+- Keep the client dependency-free and compatible with Python 3.9. Use type hints and the existing `argparse` command structure.
+- Keep fake-router data synthetic. Never add a real router address, credential, MAC address, device name or hostname.
+- Never send write calls to real hardware while testing. Writes, remote administration, firmware upgrade and reboot require the user’s exact authorization and the dry-run procedure below.
+
 ## When to use it
 
 Use it for: who is connected, which IP a device has, reserving a DHCP address, opening or closing a port forward, checking Wi-Fi/WAN/firmware, switching remote (WAN) admin off.
