@@ -30,8 +30,12 @@ class Settings:
 
 
 def default_config_path() -> str:
-    base = os.environ.get("XDG_CONFIG_HOME") or os.path.expanduser("~/.config")
-    return os.path.join(base, "iptime-cli", "config")
+    """~/.config/iptime-cli/config (XDG); on Windows %APPDATA%\\iptime-cli\\config unless XDG_CONFIG_HOME is set."""
+    base = os.environ.get("XDG_CONFIG_HOME")
+    if not base and os.name == "nt" and os.environ.get("APPDATA"):
+        base = os.environ["APPDATA"]
+    base = base or os.path.join(os.path.expanduser("~"), ".config")
+    return os.path.normpath(os.path.join(base, "iptime-cli", "config"))
 
 
 def read_file(path: str, warn=True) -> dict:
@@ -49,7 +53,8 @@ def read_file(path: str, warn=True) -> dict:
             for name, aliases in _KEYS.items():
                 if key in aliases:
                     out[name] = value
-    if warn and out.get("password"):
+    # POSIX mode bits mean nothing on Windows (every file reports 0666); the user profile ACL protects it there.
+    if warn and out.get("password") and os.name != "nt":
         mode = stat.S_IMODE(os.stat(path).st_mode)
         if mode & 0o077:
             print(f"warning: {path} holds a password but is readable by others "

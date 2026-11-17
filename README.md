@@ -48,7 +48,7 @@ Settings are read in this order: command-line flag, environment variable, config
 | Admin user | `--user` | `IPTIME_USER` | `user` | `admin` |
 | Admin password | — | `IPTIME_PASSWORD` | `password` | asked on the terminal |
 
-The config file is `~/.config/iptime-cli/config` (or `--config FILE`, or `IPTIME_CONFIG`):
+The config file is `~/.config/iptime-cli/config` on macOS and Linux, `%APPDATA%\iptime-cli\config` on Windows (or `--config FILE`, or `IPTIME_CONFIG`):
 
 ```ini
 host = 192.168.0.1
@@ -56,7 +56,7 @@ user = admin
 password = change-me
 ```
 
-Keep it private: `chmod 600 ~/.config/iptime-cli/config`. The tool warns on stderr when a file with a password is readable by others. A file of `IPTIME_ADMIN_URL=`, `IPTIME_ADMIN_USER=`, `IPTIME_ADMIN_PASSWORD=` lines (or `IPTIME_HOST=` ...) works too. `--host` accepts `192.168.0.1`, `192.168.0.1:8080` or a full URL.
+Keep it private: `chmod 600 ~/.config/iptime-cli/config`. The tool warns on stderr when a file with a password is readable by others (macOS and Linux; on Windows your user profile's permissions protect it). A file of `IPTIME_ADMIN_URL=`, `IPTIME_ADMIN_USER=`, `IPTIME_ADMIN_PASSWORD=` lines (or `IPTIME_HOST=` ...) works too. `--host` accepts `192.168.0.1`, `192.168.0.1:8080` or a full URL.
 
 > **Logging in may end an open browser admin session.** The router allows few simultaneous admin sessions. The CLI logs out when it finishes.
 
@@ -319,8 +319,8 @@ Exit codes: `0` ok, `1` error (router, login, API), `2` bad usage or bad params 
 | Read commands (`info`, `clients`, `wan`, `wifi`, `dhcp list`, `port list`, `remote-admin`, `firmware check`, `call`) and `firmware upgrade --dry-run` | run against that router |
 | Write commands (`port add/rm`, `dhcp reserve/unreserve`, `remote-admin on/off`, `reboot`, `firmware upgrade`) | **only against the bundled fake router**, never against a real one by this package. The request bodies follow what the admin page sends. An earlier hand-written script sent the same port-forward and DHCP-reservation bodies to a real router and they worked; `remote-admin off`, `remote-admin on`, `reboot` and the two firmware-upgrade calls and their status stages were read from the admin bundle and never reached real hardware |
 | Login failures | one wrong login against real hardware: the router answered `{"error": {"code": -31996, "message": "Config error"}}`. Captcha and lockout messages were not observed; those paths are only exercised by the fake router, so their wording is a guess |
-| OS | macOS, Python 3.12 |
-| Not tested | Linux and Windows, other models, other 16.x builds, https admin, old admin UI (refused with an error), Wi-Fi 7 / mesh models |
+| OS | macOS (Python 3.12) against the real router; Windows 11 (Python 3.10) and Ubuntu 24.04 (Python 3.12) against the bundled fake router, installed from PyPI |
+| Not tested | Windows and Linux against a real router, other models, other 16.x builds, https admin, old admin UI (refused with an error), Wi-Fi 7 / mesh models |
 
 Other models may differ: on the tested model `system/temperature`, `wireless/mlo/info`, `port/role`, `power/status` and `fan/running` are absent.
 

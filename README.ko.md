@@ -48,7 +48,7 @@ $ pip install iptime-cli      # 기존 프로젝트 안에서
 | 관리자 아이디 | `--user` | `IPTIME_USER` | `user` | `admin` |
 | 관리자 비밀번호 | — | `IPTIME_PASSWORD` | `password` | 터미널에서 물어봄 |
 
-설정 파일은 `~/.config/iptime-cli/config`입니다(`--config 파일` 또는 `IPTIME_CONFIG`로 바꿀 수 있습니다).
+설정 파일은 macOS·Linux에서 `~/.config/iptime-cli/config`, Windows에서 `%APPDATA%\iptime-cli\config`입니다(`--config 파일` 또는 `IPTIME_CONFIG`로 바꿀 수 있습니다).
 
 ```ini
 host = 192.168.0.1
@@ -56,7 +56,7 @@ user = admin
 password = change-me
 ```
 
-비밀번호가 들어 있으니 `chmod 600 ~/.config/iptime-cli/config`로 막아 두세요. 다른 사용자가 읽을 수 있는 상태면 stderr로 경고합니다. `IPTIME_ADMIN_URL=`, `IPTIME_ADMIN_USER=`, `IPTIME_ADMIN_PASSWORD=` 줄로 된 파일(또는 `IPTIME_HOST=` 등)도 그대로 읽습니다. `--host`에는 `192.168.0.1`, `192.168.0.1:8080`, 전체 URL을 모두 쓸 수 있습니다.
+비밀번호가 들어 있으니 `chmod 600 ~/.config/iptime-cli/config`로 막아 두세요. 다른 사용자가 읽을 수 있는 상태면 stderr로 경고합니다(macOS·Linux. Windows는 사용자 폴더 권한으로 보호됩니다). `IPTIME_ADMIN_URL=`, `IPTIME_ADMIN_USER=`, `IPTIME_ADMIN_PASSWORD=` 줄로 된 파일(또는 `IPTIME_HOST=` 등)도 그대로 읽습니다. `--host`에는 `192.168.0.1`, `192.168.0.1:8080`, 전체 URL을 모두 쓸 수 있습니다.
 
 > **로그인하면 브라우저에 열려 있던 관리자 세션이 끊길 수 있습니다.** 공유기는 동시에 열 수 있는 관리자 세션이 적습니다. 이 도구는 끝날 때 로그아웃합니다.
 
@@ -319,8 +319,8 @@ with Router("192.168.0.1", "admin", "change-me") as router:     # 끝나면 로�
 | 읽기 명령 (`info`, `clients`, `wan`, `wifi`, `dhcp list`, `port list`, `remote-admin`, `firmware check`, `call`)와 `firmware upgrade --dry-run` | 그 공유기에서 실행 |
 | 쓰기 명령 (`port add/rm`, `dhcp reserve/unreserve`, `remote-admin on/off`, `reboot`, `firmware upgrade`) | **함께 들어 있는 가짜 공유기에서만** 실행했고, 이 패키지가 실제 공유기에 보낸 적은 없습니다. 요청 본문은 관리자 화면이 보내는 형식을 따랐습니다. 예전 수작업 스크립트가 같은 포트포워딩·DHCP 고정 할당 본문을 실제 공유기에 보내 동작을 확인했고, `remote-admin off`·`remote-admin on`·`reboot`, 펌웨어 업그레이드 호출 두 개와 진행 단계 값은 관리자 번들에서 읽은 것이라 실제 장비에는 닿은 적이 없습니다 |
 | 로그인 실패 | 실제 장비에 잘못된 로그인을 한 번 보냈더니 `{"error": {"code": -31996, "message": "Config error"}}`가 돌아왔습니다. 캡차·잠금 메시지는 보지 못했고, 그 경로는 가짜 공유기로만 확인했으므로 문구는 추정입니다 |
-| OS | macOS, 파이썬 3.12 |
-| 확인하지 못한 것 | 리눅스·윈도우, 다른 모델, 다른 16.x 빌드, https 관리 화면, 옛 관리자 화면(오류로 거부), 와이파이 7·메시 모델 |
+| OS | macOS(파이썬 3.12)는 실제 공유기로, 윈도우 11(파이썬 3.10)과 우분투 24.04(파이썬 3.12)는 PyPI에서 설치해 내장 가짜 공유기로 확인 |
+| 확인하지 못한 것 | 윈도우·리눅스에서 실제 공유기, 다른 모델, 다른 16.x 빌드, https 관리 화면, 옛 관리자 화면(오류로 거부), 와이파이 7·메시 모델 |
 
 모델마다 다를 수 있습니다. 테스트한 모델에서는 `system/temperature`, `wireless/mlo/info`, `port/role`, `power/status`, `fan/running`이 없었습니다.
 
