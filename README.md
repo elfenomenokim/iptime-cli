@@ -17,11 +17,13 @@ Python 3.9+ · no dependencies
 
 </div>
 
+<p align="center">
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/elfenomenokim/iptime-cli/main/docs/demo/iptime-dark.gif">
   <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/elfenomenokim/iptime-cli/main/docs/demo/iptime-light.gif">
   <img alt="iptime-cli lists made-up router clients and previews a port-forwarding change" src="https://raw.githubusercontent.com/elfenomenokim/iptime-cli/main/docs/demo/iptime-light.gif">
 </picture>
+</p>
 
 <!-- x-post -->
 

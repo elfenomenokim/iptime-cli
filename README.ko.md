@@ -17,11 +17,13 @@ Python 3.9+ · no dependencies
 
 </div>
 
+<p align="center">
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/elfenomenokim/iptime-cli/main/docs/demo/iptime-dark.gif">
   <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/elfenomenokim/iptime-cli/main/docs/demo/iptime-light.gif">
   <img alt="가짜 공유기의 접속 기기를 확인하고 포트포워딩 변경 요청을 미리 봅니다" src="https://raw.githubusercontent.com/elfenomenokim/iptime-cli/main/docs/demo/iptime-light.gif">
 </picture>
+</p>
 
 ## 설치
 
