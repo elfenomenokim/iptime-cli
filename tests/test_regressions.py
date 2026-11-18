@@ -7,6 +7,7 @@ Everything runs against the bundled fake router; no real router is touched.
 from __future__ import annotations
 
 import contextlib
+import http.client
 import io
 import os
 import sys
@@ -14,12 +15,13 @@ import threading
 import time
 import unittest
 from pathlib import Path
+from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from iptime_cli import cli
 from iptime_cli.catalog import classify
-from iptime_cli.client import CaptchaError, Router
+from iptime_cli.client import CaptchaError, ConnectError, Router
 from iptime_cli.fake_router import FakeServer
 
 
@@ -145,6 +147,95 @@ class TestRemoteAdminOffClosesHttps(unittest.TestCase):
         self.addCleanup(router.close)
         router.set_remote_admin(True)
         self.assertTrue(server.state["http"]["remotehttp_flag"])
+
+
+class TestDroppedConnectionIsConnectError(unittest.TestCase):
+    """A truncated body or reset mid-answer is a connection error, not a traceback."""
+
+    def _router(self):
+        router = Router("http://127.0.0.1:1", "admin", "secret")
+        router.logged_in = True
+        return router
+
+    def test_incomplete_read_is_connect_error(self):
+        router = self._router()
+        resp = mock.Mock()
+        resp.read.side_effect = http.client.IncompleteRead(b"half")
+        with mock.patch.object(router._opener, "open", return_value=resp):
+            with self.assertRaises(ConnectError):
+                router.call("session/info")
+
+    def test_reset_while_fetching_the_ui_is_connect_error(self):
+        router = self._router()
+        resp = mock.Mock()
+        resp.read.side_effect = ConnectionResetError("reset by peer")
+        with mock.patch.object(router._opener, "open", return_value=resp):
+            with self.assertRaises(ConnectError):
+                router.connect()
+
+
+class TestFirmwareUnknownIsNotUpToDate(unittest.TestCase):
+    def test_unknown_latest_is_reported_as_unknown(self):
+        server, host = serve()
+        self.addCleanup(server.shutdown)
+        fw = {"version": "16.000", "build_date": "2026.01.01", "latest": None, "update_available": False}
+        with mock.patch.object(Router, "firmware", return_value=fw):
+            code, out, err = run_cli(["--host", host, "firmware", "upgrade"])
+        self.assertEqual(code, 1)
+        self.assertIn("cannot tell", err)
+        self.assertNotIn("already the newest", out)
+        with mock.patch.object(Router, "firmware", return_value=fw):
+            code, _, err = run_cli(["--host", host, "firmware", "upgrade", "--if-available"])
+        self.assertEqual(code, 1)
+        self.assertIn("cannot tell", err)
+
+    def test_upgrade_that_did_nothing_does_not_index_to(self):
+        server, host = serve()
+        self.addCleanup(server.shutdown)
+        fw = {"version": "16.000", "latest": "16.010", "update_available": True}
+        res = {"upgraded": False, "reason": "already up to date", "from": "16.000", "latest": "16.010"}
+        with mock.patch.object(Router, "firmware", return_value=fw), \
+                mock.patch.object(Router, "upgrade_firmware", return_value=res):
+            code, out, _ = run_cli(["--host", host, "--yes", "firmware", "upgrade"])
+        self.assertEqual(code, 0)
+        self.assertIn("nothing to do", out)
+
+
+class TestSessionMutationsAreWrites(unittest.TestCase):
+    """session/login, logout and update change state: the guard and --dry-run cover them."""
+
+    def test_classification(self):
+        for name in ("session/login", "session/logout", "session/update"):
+            self.assertEqual(classify(name), "write", name)
+        self.assertEqual(classify("session/info"), "session")
+
+    def test_guard_refuses_without_write_flag(self):
+        server, host = serve()
+        self.addCleanup(server.shutdown)
+        code, _, err = run_cli(["--host", host, "call", "session/update"])
+        self.assertEqual(code, 1)
+        self.assertIn("not a read", err)
+        self.assertEqual(server.calls, [])
+
+    def test_dry_run_sends_nothing(self):
+        server, host = serve()
+        self.addCleanup(server.shutdown)
+        code, out, _ = run_cli(["--host", host, "--dry-run", "call", "session/logout"])
+        self.assertEqual(code, 0)
+        self.assertIn("dry run", out)
+        self.assertEqual(server.calls, [])
+
+
+class TestRawCallErrorLine(unittest.TestCase):
+    """An error answer keeps the JSON body on stdout and names the error on stderr."""
+
+    def test_error_is_printed_to_stderr(self):
+        server, host = serve()
+        self.addCleanup(server.shutdown)
+        code, out, err = run_cli(["--host", host, "--yes", "call", "unregistered/info", "--write"])
+        self.assertEqual(code, 1)
+        self.assertIn('"error"', out)
+        self.assertIn("error: unregistered/info: Method not found (code -32601)", err)
 
 
 if __name__ == "__main__":

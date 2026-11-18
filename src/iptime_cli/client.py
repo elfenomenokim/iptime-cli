@@ -200,7 +200,13 @@ class Router:
             {"Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store",
              "Origin": self.base, "Referer": self.base + "/ui/"})
         resp = self._open(req)
-        raw = resp.read()
+        try:
+            raw = resp.read()
+        except (OSError, http.client.HTTPException) as exc:
+            # A dropped connection or a truncated body (IncompleteRead) is not
+            # an answer; it must reach the caller as ConnectError, like a
+            # refused connection does.
+            raise ConnectError(f"the router dropped the connection mid-answer: {exc}") from exc
         try:
             data = json.loads(raw)
         except ValueError:
@@ -221,7 +227,10 @@ class Router:
     def connect(self) -> None:
         """Fetch the admin UI once (sets the cookie) and refuse the old admin UI."""
         resp = self._open(urllib.request.Request(self.base + "/ui/"))
-        page = resp.read(65536).decode("utf-8", "replace")
+        try:
+            page = resp.read(65536).decode("utf-8", "replace")
+        except (OSError, http.client.HTTPException) as exc:
+            raise ConnectError(f"the router dropped the connection mid-answer: {exc}") from exc
         status = getattr(resp, "status", 200)
         if status != 200 or "flutter" not in page.lower():
             raise OldUiError(

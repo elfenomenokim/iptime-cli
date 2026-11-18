@@ -8,7 +8,7 @@ import time
 
 from . import __version__, config
 from .catalog import all_methods, classify
-from .client import IptimeError, PortForward, Router, _mask, normalize_mac
+from .client import ApiError, IptimeError, PortForward, Router, _mask, normalize_mac
 from .render import human_bytes, human_duration, pairs, table
 
 EPILOG = """\
@@ -298,6 +298,11 @@ def cmd_firmware(args, r: Router):
                               ("Latest", latest), ("State", state)]))
         return
     if not fw["update_available"]:
+        if fw.get("latest") is None:
+            # firmware/version/latest did not answer: unknown is not "up to date".
+            raise IptimeError(
+                f"cannot tell whether firmware {fw.get('version')} is current: "
+                "the router did not answer firmware/version/latest")
         if not args.if_available:
             emit(args, {"upgraded": False, "from": fw.get("version"), "latest": fw.get("latest")},
                  f"firmware {fw.get('version')} is already the newest ({fw.get('latest')}); nothing to do")
@@ -315,6 +320,11 @@ def cmd_firmware(args, r: Router):
             print()
             for sent in res["would_send"]:
                 print(f"POST {sent['POST']}\n{json.dumps(sent['body'], ensure_ascii=False)}")
+        return
+    if not res.get("upgraded"):
+        # The second firmware() inside the upgrade can see a change or a
+        # transient error and report "nothing happened"; there is no `to` then.
+        emit(args, res, f"nothing to do: {res.get('reason') or 'the upgrade did not start'}")
         return
     emit(args, res, f"firmware upgraded {res['from']} -> {res['to']} in {human_duration(res['seconds'])}")
 
@@ -345,7 +355,8 @@ def cmd_call(args, r: Router):
     # mask them unless --show-secrets, exactly like Router.system()/wifi() do
     print(json.dumps(resp if args.show_secrets else _mask(resp), ensure_ascii=False, indent=1))
     if resp.get("error"):
-        raise SystemExit(1)
+        err = resp["error"]
+        raise ApiError(args.method, err.get("code"), err.get("message", "error"))
 
 
 def cmd_methods(args):

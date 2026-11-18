@@ -42,7 +42,10 @@ DANGER = {
 # "<name>/config" style methods read without params and write with params
 _CONFIG_LIKE = ("config", "config/get", "get")
 
-SESSION = {"session/login", "session/logout", "session/update", "session/info"}
+# session/login, session/logout and session/update change state; only session/info
+# is a read. The write guard and --dry-run must cover the former.
+SESSION = {"session/info"}
+SESSION_WRITE = {"session/login", "session/logout", "session/update"}
 
 
 def classify(method: str, params=None) -> str:
@@ -54,6 +57,8 @@ def classify(method: str, params=None) -> str:
     """
     if method in SESSION:
         return "session"
+    if method in SESSION_WRITE:
+        return "write"
     if method in DANGER:
         return "danger"
     if method not in _KNOWN:
