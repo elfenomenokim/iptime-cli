@@ -1,8 +1,15 @@
+<img src="https://raw.githubusercontent.com/elfenomenokim/iptime-cli/main/docs/logo.svg" width="96" height="96" alt="터미널에서 접속하는 공유기 아이콘">
+
 # iptime-cli
 
 [English](README.md)
 
 새 관리자 화면(펌웨어 16.x)을 쓰는 ipTIME 공유기를 터미널과 파이썬에서 읽고 설정하는 비공식 CLI·라이브러리입니다.
+
+Python 3.9+ · no dependencies
+
+[![pypi](https://img.shields.io/pypi/v/iptime-cli?label=pypi)](https://pypi.org/project/iptime-cli/)
+[![license](https://img.shields.io/github/license/elfenomenokim/iptime-cli)](https://github.com/elfenomenokim/iptime-cli/blob/main/LICENSE)
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/elfenomenokim/iptime-cli/main/docs/demo/iptime-dark.gif">
@@ -76,6 +83,10 @@ POST http://127.0.0.1:18180/cgi/service.cgi
 
 지원 대상은 펌웨어 16.x 관리자 화면입니다. 명령은 포함된 가짜 공유기에서 실행할 수 있습니다. 실제 모델과 펌웨어별 메서드 기록은 코드의 카탈로그를 확인하세요. 연결에 실패했을 때 공유기 상태를 추측하지 마세요.
 
+## 기여
+
+이슈와 풀 리퀘스트를 환영합니다. 가짜 공유기, 회귀 테스트, 리뷰 방식은 [CONTRIBUTING.md](CONTRIBUTING.md)에 있습니다.
+
 ## 라이선스
 
-MIT. EFM Networks와 관계가 없으며 보증하거나 지원하지 않습니다. ipTIME은 해당 회사의 상표입니다.
+MIT입니다. EFM Networks와 관계가 없으며 보증하거나 지원하지 않습니다. ipTIME은 해당 회사의 상표입니다.

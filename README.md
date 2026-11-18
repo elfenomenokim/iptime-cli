@@ -1,8 +1,15 @@
+<img src="https://raw.githubusercontent.com/elfenomenokim/iptime-cli/main/docs/logo.svg" width="96" height="96" alt="iptime-cli: a router reached from a terminal">
+
 # iptime-cli
 
 [한국어](README.ko.md)
 
 An unofficial CLI and Python library for reading and changing ipTIME routers that run the new firmware 16.x admin UI.
+
+Python 3.9+ · no dependencies
+
+[![pypi](https://img.shields.io/pypi/v/iptime-cli?label=pypi)](https://pypi.org/project/iptime-cli/)
+[![license](https://img.shields.io/github/license/elfenomenokim/iptime-cli)](https://github.com/elfenomenokim/iptime-cli/blob/main/LICENSE)
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/elfenomenokim/iptime-cli/main/docs/demo/iptime-dark.gif">
@@ -77,6 +84,10 @@ Add `--json` to read commands for scripts. Wi-Fi passwords are hidden unless you
 ## Limits
 
 The supported admin UI is firmware 16.x. Commands have been exercised with the bundled fake router; router models and firmware variants are listed in the project’s method catalog. Do not infer a router’s state after a failed connection.
+
+## Contributing
+
+Issues and pull requests are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for the fake router, the regression tests and the review process.
 
 ## License
 
