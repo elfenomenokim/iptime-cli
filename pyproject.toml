@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "iptime-cli"
+version = "0.1.2"
+description = "An unofficial CLI and Python library for reading and changing ipTIME routers that run the new firmware 16.x admin UI."
+readme = "README.md"
+requires-python = ">=3.9"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "El Fenomeno" }]
+keywords = ["iptime", "router", "cli", "korea", "efm", "port-forwarding", "dhcp", "wifi", "home-network"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "Intended Audience :: System Administrators",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Topic :: System :: Networking",
+]
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/elfenomenokim/iptime-cli"
+Repository = "https://github.com/elfenomenokim/iptime-cli"
+Issues = "https://github.com/elfenomenokim/iptime-cli/issues"
+
+[project.scripts]
+iptime = "iptime_cli.cli:main"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]

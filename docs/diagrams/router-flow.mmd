@@ -1,0 +1,5 @@
+flowchart LR
+    You[You] --> CLI[iptime command]
+    CLI -->|read or change| Router[Router admin API]
+    Router --> Result[Readable result or JSON]
+    CLI -. --dry-run .-> Preview[Request preview only]
