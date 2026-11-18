@@ -1,3 +1,5 @@
+<div align="center">
+
 <img src="https://raw.githubusercontent.com/elfenomenokim/iptime-cli/main/docs/logo.svg" width="96" height="96" alt="iptime-cli: a router reached from a terminal">
 
 # iptime-cli
@@ -10,6 +12,10 @@ Python 3.9+ · no dependencies
 
 [![pypi](https://img.shields.io/pypi/v/iptime-cli?label=pypi)](https://pypi.org/project/iptime-cli/)
 [![license](https://img.shields.io/github/license/elfenomenokim/iptime-cli)](https://github.com/elfenomenokim/iptime-cli/blob/main/LICENSE)
+
+[Install](#install) · [Quick start](#quick-start) · [Why](#why)
+
+</div>
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/elfenomenokim/iptime-cli/main/docs/demo/iptime-dark.gif">
