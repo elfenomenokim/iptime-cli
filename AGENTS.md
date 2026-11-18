@@ -66,3 +66,17 @@ Every read command takes `--json` and prints one JSON value. On failure the exit
 1. The command exited 0.
 2. For a write: read the state again and check the change is there.
 3. If the router was unreachable, say so; do not guess its state.
+
+## Code Review Rules
+
+A change is a real defect when it:
+
+- lets a write method run without `--yes`, or makes `--dry-run` send the change.
+- puts a flag, JSON field or exit code out of step with the README, or makes a read print more than one JSON value.
+- loses the `error: ...` stderr line or the exit code 1 on failure.
+- adds a runtime dependency, or uses syntax newer than Python 3.9.
+- commits a real router address, credential, MAC address, device name or hostname.
+- prints a Wi-Fi password without `--show-secrets`, or retries a failed login in a loop.
+- treats an unknown API method as a read.
+
+Not defects: wording, formatting, comment style, requested extra tests, or a renamed helper.
