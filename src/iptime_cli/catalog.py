@@ -48,13 +48,16 @@ SESSION = {"session/login", "session/logout", "session/update", "session/info"}
 def classify(method: str, params=None) -> str:
     """Return ``read``, ``write``, ``danger`` or ``session``.
 
-    Unknown names that do not look like a read are reported as ``write`` so that guards stay on
-    the safe side.
+    Only names seen in the admin bundle or on real hardware can be reads; an unrecognized
+    method is reported as ``write`` so the write guard stays on (AGENTS.md: unknown methods
+    count as writes, whatever their last segment looks like).
     """
     if method in SESSION:
         return "session"
     if method in DANGER:
         return "danger"
+    if method not in _KNOWN:
+        return "write"
     last = method.rsplit("/", 1)[-1]
     if last == "config" or method.endswith("/config/original"):
         return "read" if params is None else "write"
@@ -111,7 +114,7 @@ tethering/status||USB tethering state|ok
 upnp/config||UPnP enabled flag|ok
 nat/config||NAT enabled flag|ok
 dmz/config||DMZ mode, host MAC, lease|ok
-http/config|none to read; {"remotehttp_flag","remotehttp_port","commit":true} to write|admin ports and remote (WAN) admin flags; the write body is from the admin bundle, never sent by us|ok
+http/config|none to read; {"remotehttp_flag","remotehttp_port","commit":true} to write (remote-admin off also sends remotehttps_flag:false)|admin ports and remote (WAN) admin flags; the write body is from the admin bundle, never sent by us|ok
 time/config||time server, time zone, DST|ok
 portforward/get|"user" or "upnp"|port-forward rules: name, active, protocol, target, src (external) and dst (internal) ports|ok
 portforward/max||maximum number of rules|ok
@@ -205,6 +208,11 @@ wireless/mac/del wireless/mac/policy wireless/mac/show wireless/mlo/info wireles
 wireless/wps/info wireless/wps/start wireless/wps/stop wl/operation wol/add wol/del wol/show
 wol/signal
 """.split()
+
+# every method this tool knows: seen in the admin bundle and/or called on real hardware.
+# classify() treats anything outside this set as a write, so an unrecognized
+# ``unregistered/info``-style name can never slip past the write guard as a "read".
+_KNOWN = frozenset(_BUNDLE_NAMES) | set(OBSERVED)
 
 
 def all_methods():

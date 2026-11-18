@@ -8,7 +8,7 @@ import time
 
 from . import __version__, config
 from .catalog import all_methods, classify
-from .client import IptimeError, PortForward, Router, normalize_mac
+from .client import IptimeError, PortForward, Router, _mask, normalize_mac
 from .render import human_bytes, human_duration, pairs, table
 
 EPILOG = """\
@@ -338,7 +338,12 @@ def cmd_call(args, r: Router):
     if kind in ("write", "danger") and not confirm(args, f"send {args.method}"):
         return
     resp = r.call_raw(args.method, params)
-    print(json.dumps(resp, ensure_ascii=False, indent=1))
+    if resp.get("dry_run"):
+        show_write(args, resp)
+        return
+    # the raw answer can hold Wi-Fi passwords in clear (system/info, wireless/bss/show):
+    # mask them unless --show-secrets, exactly like Router.system()/wifi() do
+    print(json.dumps(resp if args.show_secrets else _mask(resp), ensure_ascii=False, indent=1))
     if resp.get("error"):
         raise SystemExit(1)
 

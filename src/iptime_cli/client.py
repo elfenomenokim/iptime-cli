@@ -404,11 +404,16 @@ class Router:
         return self.call("dhcpd/reservedaddr/del", {"ntag": "lan", "mac": [normalize_mac(mac)]})
 
     def set_remote_admin(self, enabled: bool, port: Optional[int] = None):
-        """Turn remote (WAN) HTTP admin on or off.  ``on`` exposes the admin page to the internet."""
+        """Turn remote (WAN) HTTP admin on or off.  ``on`` exposes the admin page to the internet;
+        ``off`` closes both the HTTP and the HTTPS remote admin endpoints."""
         current = self.remote_admin()
         params = {"remotehttp_flag": bool(enabled),
                   "remotehttp_port": int(port or current.get("remotehttp_port") or 8080),
                   "commit": True}
+        if not enabled:
+            # switching remote admin off must close the HTTPS admin endpoint too,
+            # not leave it exposed on the WAN
+            params["remotehttps_flag"] = False
         return self.call("http/config", params)
 
     def upgrade_firmware(self, wait_timeout: float = 1800, poll: float = 10, progress=None,
@@ -441,6 +446,11 @@ class Router:
             status = None
             try:
                 status = self.call("firmware/upgrade/status")
+            except LoginError:
+                # reauthentication was refused (wrong password, captcha, lockout):
+                # stop at once instead of hammering the router with logins until
+                # the timeout, and let the real error reach the caller
+                raise
             except IptimeError:             # router rebooting: no answer, or the session is gone
                 self.logged_in = False
                 if last_stage != "unreachable":

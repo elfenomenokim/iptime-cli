@@ -210,6 +210,10 @@ class Handler(BaseHTTPRequestHandler):
                 return ok(st["http"])
             st["http"]["remotehttp_flag"] = params["remotehttp_flag"]
             st["http"]["remotehttp_port"] = params["remotehttp_port"]
+            if "remotehttps_flag" in params:
+                st["http"]["remotehttps_flag"] = params["remotehttps_flag"]
+            if "remotehttps_port" in params:
+                st["http"]["remotehttps_port"] = params["remotehttps_port"]
             return ok("done")
         if method == "reboot/now":
             st["rebooted"] = True
