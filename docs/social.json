@@ -1,0 +1,12 @@
+{
+  "name": "iptime-cli",
+  "sentence": "An unofficial CLI and Python library for reading and changing ipTIME routers that run the new firmware 16.x admin UI.",
+  "tag": "PYTHON · ROUTER CLI",
+  "terminal": [
+    "$ iptime clients",
+    "192.168.0.10  desktop",
+    "$ iptime port add … --dry-run",
+    "dry run, nothing sent"
+  ],
+  "flow": ["Command", "Router admin API", "Readable result"]
+}
