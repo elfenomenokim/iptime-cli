@@ -41,7 +41,8 @@ The regression tests use the bundled fake router only. They prove the client, no
   in the fake router that shows the bug.
 - **A line under Unreleased** in [CHANGELOG.md](CHANGELOG.md) when a user will notice.
 - **The model and firmware you tested** written in the pull request, or a statement that only the
-  fake router answered.
+  fake router answered (the `tests` workflow runs the fake-router suite on Ubuntu, macOS and Windows
+  with Python 3.9 and 3.13).
 
 ## Review
 
