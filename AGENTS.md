@@ -2,6 +2,27 @@
 
 Instructions for an AI agent asked to look at or change an ipTIME router (new admin UI, firmware 16.x) from a terminal.
 
+## Set up for a user
+
+Goal: the user can run `iptime info` against their own ipTIME router. Run these steps in order.
+
+1. Check what is present.
+   - `uv --version` prints a version. If not: `curl -LsSf https://astral.sh/uv/install.sh | sh`, then open a new shell or `export PATH="$HOME/.local/bin:$PATH"`.
+   - Ask which router model and firmware the user has. Only the new admin UI (firmware 16.x) works; `old admin UI not supported yet` means stop and say so.
+2. Install: `uv tool install iptime-cli` (no other dependency, Python 3.9+; uv fetches Python itself). `iptime --version` prints `0.1.4` or newer.
+3. Rehearse on the bundled fake router before touching hardware:
+   `uvx --from iptime-cli python -m iptime_cli.fake_router --port 8089 &`, then
+   `IPTIME_HOST=127.0.0.1:8089 IPTIME_USER=admin IPTIME_PASSWORD=secret iptime info` prints `Model            ipTIME FAKE-1000`. Stop the fake router afterwards.
+4. Only the person can supply these. Ask exactly: "공유기 관리 주소(보통 192.168.0.1)와 관리자 아이디, 비밀번호를 알려주세요. 지금 공유기 관리 화면을 브라우저에 열어 두셨다면 로그인이 풀릴 수 있으니 닫아 주세요."
+   Save them without printing the password: `IPTIME_HOST`, `IPTIME_USER` as environment variables, and the password in `~/.config/iptime-cli/config` (`password = ...`, `chmod 600`). Never put it in a command line, a commit or a message.
+5. Prove it, read-only: `iptime info --json` exits 0 and prints one JSON object with `product` and `firmware`. Then `iptime clients` lists the user's devices.
+6. If it fails, in this order:
+   - `error: cannot reach http://...`: wrong address, or the user is not on the router's network. Ask the user; do not scan the network.
+   - `error: login failed: ...`: wrong user or password. Stop after one try (a captcha or login block follows repeated failures) and ask the user to check by logging in from a browser.
+   - `old admin UI not supported yet`: firmware older than 16.x. The tool cannot help.
+   - HTTPS router with a self-signed certificate: add `--insecure` only after the user agrees.
+7. Writes (`port add`, `dhcp reserve`, `remote-admin`, `reboot`, `firmware upgrade`) are not part of setup; see "Writes: always dry-run first" below.
+
 ## Repository work
 
 - CLI package: `src/iptime_cli/`; user and protocol notes: `skill/iptime-cli/SKILL.md`.
@@ -20,15 +41,6 @@ Instructions for an AI agent asked to look at or change an ipTIME router (new ad
 Use it for: who is connected, which IP a device has, reserving a DHCP address, opening or closing a port forward, checking Wi-Fi/WAN/firmware, switching remote (WAN) admin off.
 
 Do not use it when the router shows an old admin page (firmware 14.x and earlier; the tool answers `old admin UI not supported yet`), for another brand, or to change Wi-Fi settings (read-only here).
-
-## Install and configure
-
-```console
-$ pipx install iptime-cli        # or: uvx iptime-cli ...
-$ export IPTIME_HOST=192.168.0.1 IPTIME_USER=admin IPTIME_PASSWORD=...
-```
-
-The password may also live in `~/.config/iptime-cli/config` (`password = ...`, mode 0600). Never put it in a command line, a commit or a message. Ask the user for the address and credentials if they are not already configured.
 
 ## Use
 
